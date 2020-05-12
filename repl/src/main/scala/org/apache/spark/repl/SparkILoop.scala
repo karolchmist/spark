@@ -17,27 +17,15 @@
 
 package org.apache.spark.repl
 
-import java.io.{BufferedReader, PrintWriter, StringReader}
+import java.io.{BufferedReader, PrintWriter}
 
-import scala.tools.nsc.interpreter.jline.Reader
 import scala.tools.nsc.interpreter.shell.{ILoop, ShellConfig}
 
 // scalastyle:off println
 import scala.Predef.{println => _, _}
 // scalastyle:on println
-import scala.concurrent.Future
-import scala.reflect.classTag
-import scala.reflect.io.File
-import scala.tools.nsc.{GenericRunnerSettings, Properties}
+import scala.tools.nsc.{GenericRunnerSettings}
 import scala.tools.nsc.Settings
-//import scala.tools.nsc.interpreter.{isReplDebug, isReplPower, replProps}
-import scala.tools.nsc.interpreter.{
-  AbstractOrMissingHandler, /*ILoop, */ IMain /*, PrintWriter*/
-}
-import scala.tools.nsc.interpreter.{
-  NamedParam /*, SimpleReader, SplashLoop, SplashReader*/
-}
-import scala.tools.nsc.interpreter.StdReplTags.tagOfIMain
 import scala.tools.nsc.util.stringFromStream
 import scala.util.Properties.{javaVersion, javaVmName, versionString}
 
@@ -81,6 +69,9 @@ class SparkILoop(in0: BufferedReader, out: PrintWriter)
     "import spark.sql",
     "import org.apache.spark.sql.functions._"
   )
+
+  override protected def internalReplAutorunCode(): Seq[String] =
+    initializationCommands
 
   def initializeSpark(): Unit = {
     if (!intp.reporter.hasErrors) {

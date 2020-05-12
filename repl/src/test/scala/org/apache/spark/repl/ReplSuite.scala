@@ -20,11 +20,8 @@ package org.apache.spark.repl
 import java.io._
 import java.nio.file.Files
 
-import scala.tools.nsc.interpreter.SimpleReader
-
 import org.apache.log4j.{Level, LogManager, PropertyConfigurator}
 import org.scalatest.BeforeAndAfterAll
-
 import org.apache.spark.{SparkContext, SparkFunSuite}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
@@ -88,17 +85,14 @@ class ReplSuite extends SparkFunSuite with BeforeAndAfterAll {
 
   test("propagation of local properties") {
     // A mock ILoop that doesn't install the SIGINT handler.
-    class ILoop(out: PrintWriter) extends SparkILoop(None, out) {
-      settings = new scala.tools.nsc.Settings
-      settings.usejavacp.value = true
-      org.apache.spark.repl.Main.interp = this
-      in = SimpleReader()
-    }
-
+    class ILoop(out: PrintWriter) extends SparkILoop(null, out)
+    
     val out = new StringWriter()
     Main.interp = new ILoop(new PrintWriter(out))
     Main.sparkContext = new SparkContext("local", "repl-test")
-    Main.interp.createInterpreter()
+    val settings = new scala.tools.nsc.Settings
+    settings.usejavacp.value = true
+    Main.interp.createInterpreter(settings)
 
     Main.sparkContext.setLocalProperty("someKey", "someValue")
 

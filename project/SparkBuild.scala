@@ -213,7 +213,7 @@ object SparkBuild extends PomBuild {
   )
 
   lazy val sharedSettings = sparkGenjavadocSettings ++
-      (if (sys.env.contains("NOLINT_ON_COMPILE")) Nil else enableScalaStyle) ++ Seq(
+      (if (sys.env.contains("NOLINT_ON_COMPILE")) Nil else Nil) ++ Seq(
     exportJars in Compile := true,
     exportJars in Test := false,
     javaHome := sys.env.get("JAVA_HOME")
@@ -279,45 +279,45 @@ object SparkBuild extends PomBuild {
     ) ++ {
       // Do not attempt to scaladoc javadoc comments under 2.12 since it can't handle inner classes
       if (scalaBinaryVersion.value == "2.12") Seq("-no-java-comments") else Seq.empty
-    },
+    }
 
     // Implements -Xfatal-warnings, ignoring deprecation warnings.
     // Code snippet taken from https://issues.scala-lang.org/browse/SI-8410.
-    compile in Compile := {
-      val analysis = (compile in Compile).value
-      val out = streams.value
-
-      def logProblem(l: (=> String) => Unit, f: File, p: xsbti.Problem) = {
-        l(f.toString + ":" + p.position.line.fold("")(_ + ":") + " " + p.message)
-        l(p.position.lineContent)
-        l("")
-      }
-
-      var failed = 0
-      analysis.infos.allInfos.foreach { case (k, i) =>
-        i.reportedProblems foreach { p =>
-          val deprecation = p.message.contains("is deprecated")
-
-          if (!deprecation) {
-            failed = failed + 1
-          }
-
-          val printer: (=> String) => Unit = s => if (deprecation) {
-            out.log.warn(s)
-          } else {
-            out.log.error("[warn] " + s)
-          }
-
-          logProblem(printer, k, p)
-
-        }
-      }
-
-      if (failed > 0) {
-        sys.error(s"$failed fatal warnings")
-      }
-      analysis
-    }
+//    compile in Compile := {
+//      val analysis = (compile in Compile).value
+//      val out = streams.value
+//
+//      def logProblem(l: (=> String) => Unit, f: File, p: xsbti.Problem) = {
+//        l(f.toString + ":" + p.position.line.fold("")(_ + ":") + " " + p.message)
+//        l(p.position.lineContent)
+//        l("")
+//      }
+//
+//      var failed = 0
+//      analysis.infos.allInfos.foreach { case (k, i) =>
+//        i.reportedProblems foreach { p =>
+//          val deprecation = p.message.contains("is deprecated")
+//
+//          if (!deprecation) {
+//            failed = failed + 1
+//          }
+//
+//          val printer: (=> String) => Unit = s => if (deprecation) {
+//            out.log.warn(s)
+//          } else {
+//            out.log.error("[warn] " + s)
+//          }
+//
+//          logProblem(printer, k, p)
+//
+//        }
+//      }
+//
+//      if (failed > 0) {
+//        sys.error(s"$failed fatal warnings")
+//      }
+//      analysis
+//    }
   )
 
   def enable(settings: Seq[Setting[_]])(projectRef: ProjectRef) = {

@@ -35,8 +35,7 @@ object Main extends Logging {
   Signaling.cancelOnInterrupt()
 
   val conf = new SparkConf()
-  val rootDir =
-    conf.getOption("spark.repl.classdir").getOrElse(Utils.getLocalDir(conf))
+  val rootDir = conf.getOption("spark.repl.classdir").getOrElse(Utils.getLocalDir(conf))
   val outputDir = Utils.createTempDir(root = rootDir, namePrefix = "repl")
 
   var sparkContext: SparkContext = _
@@ -62,26 +61,21 @@ object Main extends Logging {
   // Visible for testing
   private[repl] def doMain(args: Array[String], _interp: SparkILoop): Unit = {
     interp = _interp
-    val jars = Utils
-      .getLocalUserJarsForShell(conf)
+    val jars = Utils.getLocalUserJarsForShell(conf)
       // Remove file:///, file:// or file:/ scheme if exists for each jar
-      .map { x =>
-        if (x.startsWith("file:")) new File(new URI(x)).getPath else x
-      }
+      .map { x => if (x.startsWith("file:")) new File(new URI(x)).getPath else x }
       .mkString(File.pathSeparator)
     val interpArguments = List(
       "-Yrepl-class-based",
-      "-Yrepl-outdir",
-      s"${outputDir.getAbsolutePath}",
-      "-classpath",
-      jars
+      "-Yrepl-outdir", s"${outputDir.getAbsolutePath}",
+      "-classpath", jars
     ) ++ args.toList
 
     val settings = new GenericRunnerSettings(scalaOptionError)
     settings.processArguments(interpArguments, true)
 
     if (!hasErrors) {
-      interp.run(settings) // Repl starts and goes in loop of R.E.P.L
+      interp.process(settings) // Repl starts and goes in loop of R.E.P.L
       Option(sparkContext).foreach(_.stop)
     }
   }
@@ -104,9 +98,7 @@ object Main extends Logging {
       }
 
       val builder = SparkSession.builder.config(conf)
-      if (conf
-            .get(CATALOG_IMPLEMENTATION.key, "hive")
-            .toLowerCase(Locale.ROOT) == "hive") {
+      if (conf.get(CATALOG_IMPLEMENTATION.key, "hive").toLowerCase(Locale.ROOT) == "hive") {
         if (SparkSession.hiveClassesArePresent) {
           // In the case that the property is not set at all, builder's config
           // does not have this value set to 'hive' yet. The original default

@@ -30,10 +30,10 @@ import scala.tools.nsc.util.stringFromStream
 import scala.util.Properties.{javaVersion, javaVmName, versionString}
 
 /**
-  *  A Spark-specific interactive shell.
-  */
+ *  A Spark-specific interactive shell.
+ */
 class SparkILoop(in0: BufferedReader, out: PrintWriter)
-    extends ILoop(ShellConfig(new GenericRunnerSettings(_ => ())), in0, out) {
+  extends ILoop(ShellConfig(new GenericRunnerSettings(_ => ())), in0, out) {
   def this() = this(null, new PrintWriter(Console.out, true))
 
   val initializationCommands: Seq[String] = Seq(
@@ -127,9 +127,9 @@ class SparkILoop(in0: BufferedReader, out: PrintWriter)
 object SparkILoop {
 
   /**
-    * Creates an interpreter loop with default settings and feeds
-    * the given code to it as input.
-    */
+   * Creates an interpreter loop with default settings and feeds
+   * the given code to it as input.
+   */
   def run(code: String, sets: Settings = new Settings): String = {
     import java.io.{BufferedReader, StringReader, OutputStreamWriter}
 

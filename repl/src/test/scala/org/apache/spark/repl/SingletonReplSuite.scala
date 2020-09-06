@@ -399,6 +399,7 @@ class SingletonReplSuite extends SparkFunSuite {
     //         - closure: the starting closure, captures the enclosing REPL line object.
     val output = runInterpreter(
       """
+        |import scala.collection.immutable.IndexedSeq
         |class NotSerializableClass(val x: Int)
         |val ns = new NotSerializableClass(42); val topLevelValue = "someValue"; val closure =
         |(j: Int) => {
@@ -408,7 +409,9 @@ class SingletonReplSuite extends SparkFunSuite {
         |}
         |val r = sc.parallelize(0 to 2).map(closure).collect
       """.stripMargin)
-    assertContains("r: Array[scala.collection.immutable.IndexedSeq[String]] = " +
+//    assertContains("r: Array[scala.collection.immutable.IndexedSeq[String]] = " +
+//      "Array(Vector(), Vector(1someValue), Vector(1someValue, 1someValue, 2someValue))", output)
+    assertContains("r: Array[IndexedSeq[String]] = " +
       "Array(Vector(), Vector(1someValue), Vector(1someValue, 1someValue, 2someValue))", output)
     assertDoesNotContain("Exception", output)
   }
@@ -435,7 +438,9 @@ class SingletonReplSuite extends SparkFunSuite {
         |}
         |val r = sc.parallelize(0 to 2).map(closure).collect
       """.stripMargin)
-    assertContains("r: Array[scala.collection.immutable.IndexedSeq[String]] = " +
+//    assertContains("r: Array[scala.collection.immutable.IndexedSeq[String]] = " +
+//       "Array(Vector(), Vector(1someValue), Vector(1someValue, 1someValue, 2someValue))", output)
+    assertContains("r: Array[IndexedSeq[String]] = " +
        "Array(Vector(), Vector(1someValue), Vector(1someValue, 1someValue, 2someValue))", output)
     assertDoesNotContain("Array(Vector(), Vector(1null), Vector(1null, 1null, 2null)", output)
     assertDoesNotContain("Exception", output)

@@ -82,29 +82,7 @@ class ReplSuite extends SparkFunSuite with BeforeAndAfterAll {
     assert(!isContain,
       "Interpreter output contained '" + message + "':\n" + output)
   }
-
-  test("propagation of local properties") {
-    // A mock ILoop that doesn't install the SIGINT handler.
-    class ILoop(out: PrintWriter) extends SparkILoop(null, out)
-    
-    val out = new StringWriter()
-    Main.interp = new ILoop(new PrintWriter(out))
-    Main.sparkContext = new SparkContext("local", "repl-test")
-    val settings = new scala.tools.nsc.Settings
-    settings.usejavacp.value = true
-    Main.interp.createInterpreter(settings)
-
-    Main.sparkContext.setLocalProperty("someKey", "someValue")
-
-    // Make sure the value we set in the caller to interpret is propagated in the thread that
-    // interprets the command.
-    Main.interp.interpret("org.apache.spark.repl.Main.sparkContext.getLocalProperty(\"someKey\")")
-    assert(out.toString.contains("someValue"))
-
-    Main.sparkContext.stop()
-    System.clearProperty("spark.driver.port")
-  }
-
+  
   test("SPARK-15236: use Hive catalog") {
     // turn on the INFO log so that it is possible the code will dump INFO
     // entry for using "HiveMetastore"
